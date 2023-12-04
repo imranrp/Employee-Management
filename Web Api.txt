@@ -1,0 +1,26 @@
+Web Api
+=======
+* baseUrl = "http://localhost:5256/api/Employee/"
+
+Method	URL		Request Headers	Request Body	Response Code	Response Body
+------	---		---------------	------------	-------------	-------------
+GET	baseUrl		     NA		    NA		200(Ok)		All objects
+GET	baseUrl/id	     NA		    NA		200		One object
+POST	baseUrl		Content-Type	New object	201(Created)	New object
+PUT	baseUrl/id	Content-Type	Edited object	200		Updated object
+DELETE	baseUrl/id	     NA		    NA		200		Empty
+
+Consuming Web API using C#
+--------------------------
+1) Create any project
+2) Install the following packages:
+- System.Net.Http
+- Newtonsoft.Json
+3) Use the "HttpClient" class to call the api
+* For GET methods, call "GetFromJsonAsync()"
+* For POST methods, call "PostAsJsonAsync()"
+* For PUT methods, call "PutAsJsonAsync()"
+* For DELETE methods, call "DeleteAsAsync()"
+
+
+
