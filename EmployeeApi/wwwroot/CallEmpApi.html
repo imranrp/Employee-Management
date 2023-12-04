@@ -1,0 +1,149 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Employee Web API</title>
+    <script>
+        var token;
+        function showAllEmps() {
+            var xhr = new XMLHttpRequest();
+            var userName = "Ramesh";
+            var role = "Admin";
+            var secretKey = "My name is Bond, James Bond the great";
+            xhr.open("GET", "http://localhost:5256/api/Auth/?userName=" + userName + "&role=" +
+                role + "&secretKey=" + secretKey);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    token = xhr.response;
+                    xhr.open("GET", "http://localhost:5256/api/Employee/");
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState == 4 && xhr.status == 200) {
+                            var emps = JSON.parse(xhr.response);
+                            console.log(emps);
+                            var empTable = document.getElementById("empTable");
+                            empTable.innerHTML = "";
+                            for (var i = 0; i < emps.length; i++) {
+                                var emp = emps[i];
+                                empTable.innerHTML += "<tr><td>" + emp.empId + "</td><td>" + emp.empName
+                                    + "</td><td>" + emp.salary + "</td></tr>";
+                            }
+                        }
+                    };
+                    xhr.setRequestHeader("Authorization", "Bearer " + token);
+                    xhr.send();
+                }
+            };
+            xhr.send();
+        }
+        function showEmp() {
+            var eid = parseInt(document.getElementById("txtEId").value);
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "http://localhost:5256/api/Employee/" + eid);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4) {
+                    if (xhr.status == 200) {
+                        var emp = JSON.parse(xhr.response);
+                        document.getElementById("txtEName").value = emp.empName;
+                        document.getElementById("txtSal").value = emp.salary;
+                    }
+                    if (xhr.status == 400) {
+                        var err = xhr.response;
+                        alert(err);
+                    }
+                }
+            };
+            xhr.setRequestHeader("Authorization", "Bearer " + token);
+            xhr.send();
+        }
+        function saveEmp() {
+            var eid = parseInt(document.getElementById("txtEId").value);
+            var ename = document.getElementById("txtEName").value;
+            var sal = parseFloat(document.getElementById("txtSal").value);
+            var emp = { "empId": eid, "empName": ename, "salary": sal };
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "http://localhost:5256/api/Employee/");
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4) {
+                    if (xhr.status == 201) {
+                        alert("New employee added");
+                        showAllEmps();
+                    }
+                    if (xhr.status == 400) {
+                        alert("Cannot insert. Check the values");
+                    }
+                }
+            };
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.setRequestHeader("Authorization", "Bearer " + token);
+            xhr.send(JSON.stringify(emp));
+        }
+        function updateEmp() {
+            var eid = parseInt(document.getElementById("txtEId").value);
+            var ename = document.getElementById("txtEName").value;
+            var sal = parseFloat(document.getElementById("txtSal").value);
+            var emp = { "empId": eid, "empName": ename, "salary": sal };
+            var xhr = new XMLHttpRequest();
+            xhr.open("PUT", "http://localhost:5256/api/Employee/" + eid);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4) {
+                    if (xhr.status == 200) {
+                        alert("Employee details updated");
+                        showAllEmps();
+                    }
+                    if (xhr.status == 400) {
+                        alert("Cannot update. Check the values");
+                    }
+                }
+            };
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.setRequestHeader("Authorization", "Bearer " + token);
+            xhr.send(JSON.stringify(emp));
+        }
+        function deleteEmp() {
+            var choice = confirm("Are you sure to delete?");
+            if (choice) {
+                var eid = parseInt(document.getElementById("txtEId").value);
+                var xhr = new XMLHttpRequest();
+                xhr.open("DELETE", "http://localhost:5256/api/Employee/" + eid);
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4) {
+                        if (xhr.status == 200) {
+                            alert("Employee deleted");
+                            showAllEmps();
+                        }
+                        if (xhr.status == 400) {
+                            var err = xhr.response;
+                            alert(err);
+                        }
+                    }
+                };
+                xhr.setRequestHeader("Authorization", "Bearer " + token);
+                xhr.send();
+            }
+        }
+    </script>
+</head>
+<body onload="showAllEmps()">
+    <h3>Employee Form</h3>
+    <form>
+        Emp Id: <input type="number" id="txtEId" />
+        <input type="button" value="Show" onclick="showEmp()" /> <br />
+        Name: <input type="text" id="txtEName" /> <br />
+        Salary: <input type="number" id="txtSal" /> <br />
+        <input type="button" value="Save" onclick="saveEmp()" />
+        <input type="button" value="Update" onclick="updateEmp()" />
+        <input type="button" value="Delete" onclick="deleteEmp()" />
+    </form>
+    <h3>List of Employees</h3>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Emp Id</th><th>Name</th><th>Salary</th>
+            </tr>
+        </thead>
+        <tbody id="empTable">
+
+        </tbody>
+    </table>
+</body>
+</html>
